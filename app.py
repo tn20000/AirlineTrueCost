@@ -17,9 +17,10 @@ TRAVELPAYOUTS_TOKEN = os.getenv("TRAVELPAYOUTS_TOKEN")
 # Constants
 SOCAL_AIRPORTS = ["SNA", "LAX", "SAN", "ONT", "LGB", "BUR", "PSP", "CLD"]
 SECURITY_BUFFERS = {"LAX": 2.0, "SNA": 1.0, "SAN": 1.0, "ONT": 1.0, "LGB": 1.0, "BUR": 1.0, "PSP": 1.0, "CLD": 1.0}
-KIWI_AFFILIATE_LINK = "https://www.kiwi.com/en/?aid=YOUR_KIWI_ID" # Placeholder
-BOOKING_AFFILIATE_LINK = "https://www.booking.com/index.html?aid=YOUR_BOOKING_ID" # Placeholder
-AIRHELP_AFFILIATE_LINK = "https://www.airhelp.com/en/?irclickid=YOUR_AIRHELP_ID" # Placeholder
+# Affiliate Links - Loaded from .env file
+AIRHELP_AFFILIATE_LINK = os.getenv("AIRHELP_AFFILIATE_LINK")
+AVIASALES_BASE_URL = os.getenv("AVIASALES_BASE_URL")
+COMPENSAIR_AFFILIATE_LINK = os.getenv("COMPENSAIR_AFFILIATE_LINK")
 
 
 # --- 2. API & CALCULATION FUNCTIONS ---
@@ -118,7 +119,7 @@ def get_flight_data(origin_airport, dest_airport, departure_date, return_date):
                 "infants": 0,
                 "trip_class": 0, # Economy
             }
-            deep_link = f"https://www.aviasales.com/search?{requests.compat.urlencode(link_params)}"
+            deep_link = f"{AVIASALES_BASE_URL}/search?{requests.compat.urlencode(link_params)}"
 
             flights.append({
                 "price": price,
@@ -244,8 +245,7 @@ if calculate_button:
 
                     st.link_button(f"Book on Aviasales", row['Link'], use_container_width=True)
                     
-                    if row['Transfers'] > 0:
-                        st.link_button("Check Hacker Fares on Kiwi.com", KIWI_AFFILIATE_LINK, use_container_width=True, type="secondary")
+
 
             with st.expander("View Detailed Cost Breakdown"):
                 st.dataframe(results_df[[
@@ -255,12 +255,11 @@ if calculate_button:
                     "Time Penalty": "${:,.2f}", "Total Time (hrs)": "{:.2f}"
                 }))
 
-        # --- 6. Cross-Sell Widgets ---
         st.header("Enhance Your Trip")
         col1, col2 = st.columns(2)
         with col1:
-            st.info(f"🏨 Need a hotel in **{dest_airport}**?")
-            st.link_button("View deals on Booking.com", f"{BOOKING_AFFILIATE_LINK}&ss={dest_airport}", use_container_width=True)
+            st.info("✈️ Flight delayed or canceled?")
+            st.link_button("Claim Your Compensation with Compensair", COMPENSAIR_AFFILIATE_LINK, use_container_width=True)
         with col2:
             st.info("✈️ Flying out of LAX or another major hub?")
             st.link_button("Claim up to $600 for flight delays with AirHelp", AIRHELP_AFFILIATE_LINK, use_container_width=True)
